@@ -3,37 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบเรียกเก็บเงินออนไลน์</title>
+    <title>ระบบเรียกเก็บเงินอัจฉริยะ (มีหลังบ้าน & อัปสลิปจริง)</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Kanit', sans-serif; }
-        body { background-color: #f0f4f8; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: #ffffff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); max-width: 450px; width: 100%; text-align: center; }
-        h2 { color: #1e293b; margin-top: 0; font-weight: 600; }
-        p { color: #64748b; font-size: 14px; }
+        body { background: #f1f5f9; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: #ffffff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 450px; width: 100%; text-align: center; }
+        h2 { color: #0f172a; margin-top: 0; font-size: 22px; font-weight: 600; }
+        .subtitle { color: #64748b; font-size: 13px; margin-bottom: 20px; }
         .form-group { text-align: left; margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #475569; font-weight: 500; font-size: 14px; }
-        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 15px; outline: none; transition: 0.2s; }
-        input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-        button { width: 100%; background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 500; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        button:hover { background: #2563eb; }
-        .qr-code { background: #f8fafc; padding: 15px; border-radius: 15px; margin: 20px 0; display: inline-block; border: 1px dashed #cbd5e1; }
-        .qr-code img { max-width: 200px; width: 100%; height: auto; }
-        .price { font-size: 32px; font-weight: 600; color: #10b981; margin: 10px 0; }
-        .result-box { background: #f1f5f9; padding: 15px; border-radius: 10px; margin-top: 20px; word-break: break-all; text-align: left; font-size: 13px; display: none; border: 1px solid #e2e8f0; }
+        label { display: block; margin-bottom: 6px; color: #334155; font-weight: 500; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: #f8fafc; }
+        input:focus { border-color: #4f46e5; background: #fff; }
+        button { width: 100%; background: #4f46e5; color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 500; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #3730a3; }
+        .qr-zone { background: #f8fafc; padding: 15px; border-radius: 15px; margin: 20px 0; border: 1px dashed #cbd5e1; }
+        .qr-zone img { max-width: 200px; width: 100%; height: auto; }
+        .price-display { font-size: 36px; font-weight: 600; color: #059669; margin: 10px 0; }
+        .preview-box { background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 15px; text-align: left; border: 1px solid #e2e8f0; word-break: break-all; }
+        .upload-btn { background: #f1f5f9; color: #475569; border: 2px dashed #cbd5e1; padding: 15px; border-radius: 10px; cursor: pointer; display: block; margin-top: 10px; font-size: 14px; }
+        .upload-btn:hover { background: #e2e8f0; }
+        #slipPreview { max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 8px; display: none; margin-left: auto; margin-right: auto; }
         .hidden { display: none; }
+        .nav-btn { background: none; color: #4f46e5; padding: 5px; font-size: 13px; text-decoration: underline; border: none; cursor: pointer; box-shadow: none; margin-top: 15px; width: auto; }
+        .nav-btn:hover { color: #3730a3; background: none; }
     </style>
 </head>
 <body>
 
-<div id="seller-view" class="container">
-    <h2>📊 ระบบสร้างลิงก์เก็บเงิน</h2>
-    <p>กรอกข้อมูลเพื่อสร้างหน้าชำระเงินส่งให้ลูกค้าได้ทันที</p>
+<!-- ================= หน้าหลังบ้าน (ADMIN PANEL) ================= -->
+<div id="admin-view" class="card">
+    <h2>⚙️ ระบบหลังบ้านตั้งค่ารับเงิน</h2>
+    <div class="subtitle">กรอกข้อมูลเพื่อเจนลิงก์เรียกเก็บเงินลูกค้า</div>
     
     <div class="form-group">
         <label>ชื่อร้านค้าของคุณ</label>
-        <input type="text" id="shopName" placeholder="เช่น ร้านแฟชั่นดีไซน์">
+        <input type="text" id="shopName" placeholder="เช่น ร้านข้าวมันไก่เจ๊เฮง">
     </div>
+    
+    <div class="form-group">
+        <label>เลขพร้อมเพย์ (เบอร์มือถือ หรือ เลขบัตร ปชช.)</label>
+        <input type="text" id="ppNumber" placeholder="เช่น 0891234567">
+    </div>
+
+    <div class="form-group">
+        <label>Discord Webhook URL (สำหรับรับรูปสลิปฟรี)</label>
+        <input type="text" id="discordWebhook" placeholder="https://discord.com/api/webhooks/...">
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+    
+    <div class="form-group">
+        <label>ชื่อสินค้า / บริการ</label>
+        <input type="text" id="itemName" placeholder="เช่น ค่าเสื้อยืดสีขาว Size L">
+    </div>
+    
+    <div class="form-group">
+        <label>จำนวนเงินที่เรียกเก็บ (บาท)</label>
+        <input type="number" id="amount" step="0.01" placeholder="เช่น 350.00">
+    </div>
+    
+    <button onclick="generateCustomerLink()">🔗 สร้างลิงก์เก็บเงินลูกค้า</button>
+    
+    <div id="resultSection" class="hidden">
+        <div class="preview-box">
+            <strong style="font-size:13px; color:#0f172a;">ส่งลิงก์นี้ให้ลูกค้าของคุณ:</strong>
+            <div id="liveLink" style="color:#4f46e5; margin: 8px 0; font-size:12px;"></div>
+            <button onclick="copyToClipboard()" style="background:#10b981; padding:8px; font-size:14px; margin:0;">📋 คัดลอกลิงก์</button>
+        </div>
+    </div>
+    
+    <button class="nav-btn" onclick="toggleView('customer')">ดูตัวอย่างหน้าฝั่งลูกค้า ➡️</button>
+</div>
+
+
+<!-- ================= หน้าหน้าบ้าน (CUSTOMER CHECKOUT) ================= -->
+<div id="customer-view" class="card hidden">
+    <h2 id="c-shopName">ชื่อร้านค้า</h2>
+    <div class="subtitle" id="c-itemName">รายการสินค้า</div>
+    <hr style="border:0; border-top:1px solid #e2e8f0;">
+    
+    <div style="font-size:13px; color:#64748b; margin-top:15px;">ยอดเงินที่ต้องชำระ</div>
+    <div class="price-display" id="c-amount">0.00 ฿</div>
+    
+    <!-- โซนคิวอาร์โค้ดสแกนจ่าย -->
+    <div class="qr-zone">
+        <img id="c-qrImage" src="" alt="PromptPay QR">
+        <div style="font-size:12px; color:#475569; margin-top:10px; font-weight:500;">สแกนจ่ายผ่านแอปธนาคารได้ทุกธนาคาร</div>
+    </div>
+    
+    <!-- โซนอัปโหลดสลิปจริง -->
+    <div class="form-group" style="margin-top:20px;">
+        <label>📸 อัปโหลดสลิปเพื่อยืนยันการโอนเงิน</label>
+        <label class="upload-btn" for="slipFile">📁 เลือกรูปภาพสลิปที่นี่</label>
+        <input type="file" id="slipFile" accept="image/*" class="hidden" onchange="previewSlip(event)">
+        <img id="slipPreview" src="" alt="Slip Preview">
+    </div>
+    
+    <button id="submitBtn" onclick="uploadSlipToAdmin()" style="background:#059669;">✅ ยืนยันการชำrateเงิน</button>
+    <div id="statusMessage" style="margin-top:15px; font-size:14px; font-weight:500;"></div>
+
+    <button class="nav-btn" id="backToAdminBtn" onclick="toggleView('admin')">⬅️ กลับหน้าหลังบ้านตั้งค่า</button>
+</div>
+
+<script>
+    // ดึงค่าจาก URL เมื่อลูกค้าเปิดลิงก์
+    const params = new URLSearchParams(window.location.search);
+    const nameParam = params.get('name');
+    const ppParam = params.get('pp');
+    const itemParam = params.get('item');
+    const amtParam = params.get('amt');
+    const webhookParam = params.get('wh');
+
+    window.onload = function() {
+        // โหลดค่าเก่าที่แอดมินเคยกรอกไว้ในเครื่องนี้มาแสดงให้อัตโนมัติ
+        if(localStorage.getItem('adm_name')) document.getElementById('shopName').value = localStorage.getItem('adm_name');
+        if(localStorage.getItem('adm_pp')) document.getElementById('ppNumber').value = localStorage.getItem('adm_pp');
+        if(localStorage.getItem('adm_wh')) document.getElementById('discordWebhook').value = localStorage.getItem('adm_wh');
+
+        // ตรวจสอบว่าถ้ามีข้อมูลลูกค้าส่งมา ให้เปิดหน้าลูกค้าทันที
+        if (nameParam && ppParam && amtParam) {
+            document.getElementById('admin-view').classList.add('hidden');
+            document.getElementById('customer-view').classList.remove('hidden');
+            document.getElementById('backToAdminBtn').classList.add('hidden'); // ซ่อนปุ่มแอดมินไม่ให้ลูกค้าเห็น
+            
+            document.getElementById('c-shopName').innerText = decodeURIComponent(nameParam);
+            document.getElementById('c-itemName').innerText = "รายการ: " + decodeURIComponent(itemParam || 'ค่าสินค้า/บริการ');
+            document.getElementById('c-amount').innerText = parseFloat(amtParam).toLocaleString('th-TH', { minimumFractionDigits: 2 }) + " ฿";
+            
+            // เจนคิวอาร์โค้ดพร้อมเพย์ตามยอดเงินให้อัตโนมัติทันที!
+            document.getElementById('c-qrImage').src = `https://promptpay.io/${ppParam}/${amtParam}.png`;
+        }
+    };
+
+    // หลังบ้าน: สร้างลิงก์ลูกค้า
+    function generateCustomerLink() {
+        const shop = document.getElementById('shopName').value.trim();
+        const pp = document.getElementById('ppNumber').value.trim();
+        const webhook = document.getElementById('discordWebhook').value.trim();
+        const item = document.getElementById('itemName').value.trim();
+        const amt = document.getElementById('amount').value.trim();
+
+        if(!shop || !pp || !amt) {
+            alert('กรุณากรอก ชื่อร้าน, เบอร์พร้อมเพย์ และจำนวนเงินให้ครบถ้วนก่อนครับ');
+            return;
+        }
+
+        // เซฟจำค่าหลังบ้านไว้ในเบราว์เซอร์
+        localStorage.setItem('adm_name', shop);
+        localStorage.setItem('adm_pp', pp);
+        localStorage.setItem('adm_wh', webhook);
+
+        const currentUrl = window.location.href.split('?')[0];
+        const finalLink = `${currentUrl}?name=${encodeURIComponent(shop)}&pp=${pp}&item=${encodeURIComponent(item)}&amt=${amt}&wh=${encodeURIComponent(webhook)}`;
+        
+        document.getElementById('liveLink').innerText = finalLink;
+        document.getElementById('resultSection').classList.remove('hidden');
+    }
+
+    function copyToClipboard() {
+        const text = document.getElementById('liveLink').innerText;
+        navigator.clipboard.writeText(text).then(() => alert('คัดลอกลิงก์สำเร็จ! นำลิงก์นี้ส่งให้ลูกค้าได้เลยครับ'));
+    }
+
+    // หน้าบ้าน: พรีวิวสลิปเมื่อเลือกไฟล์
+    function previewSlip(event) {
+        const preview = document.getElementById('slipPreview');
+        preview.src = URL.createObjectURL(event.target.files[0]);
+        preview.style.display = 'block';
+    }
+
+    // หน้าบ้าน: ระบบอัปโหลดสลิปส่งเข้า Discord หลังบ้านจริงๆ
+    function uploadSlipToAdmin() {
+        const fileInput = document.getElementById('slipFile');
+        const status = document.getElementById('statusMessage');
+        const btn = document.getElementById('submitBtn');
+
+        if(fileInput.files.length === 0) {
+            alert('กรุณาเลือกรูปภาพสลิปเงินโอนก่อนกดปุ่มยืนยันครับ');
+            return;
+        }
+
+        status.innerText = "⏳ กำลังส่งข้อมูลสลิป...";
+        status.style.color = "#4f46e5";
+        btn.disabled = true;
+
+        // ถ้าแอดมินใส่ Discord Webhook ไว้ ระบบจะส่งรูปเข้า Discord ทันที
+        if(webhookParam) {
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0], 'slip.png');
+            
+            // ส่งข้อความรายละเอียดบิลแนบไปด้วย
+            const content = `🔔 **มีแจ้งโอนเงินเข้ามาใหม่!**\n🏪 ร้านค้า: ${decodeURIComponent(nameParam)}\n💰 ยอดเงิน: ${amtParam} บาท\n📦 รายการ: ${decodeURIComponent(itemParam)}`;
+            formData.append('content', content);
+
+            fetch(decodeURIComponent(webhookParam), {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => {
+                status.innerText = "🎉 ยืนยันสำเร็จ! ส่งสลิปให้ร้านค้าเรียบร้อยแล้ว";
+                status.style.color = "#059669";
+            })
+            .catch(err => {
+                status.innerText = "❌ เกิดข้อผิดพลาดในการส่งรูปสลิป";
+                status.style.color = "#dc2626";
+                btn.disabled = false;
+            });
+        } else {
+            // กรณีไม่ได้ตั้งค่า Webhook หลังบ้าน จะทำการจำลองการส่งสำเร็จแบบปกติ
+            setTimeout(() => {
+                status.innerText = "🎉 ยืนยันสำเร็จ (โหมดสาธิต)! บันทึกสลิปเรียบร้อยแล้ว";
+                status.style.color = "#059669";
+            }, 1500);
+        }
+    }
+
+    function toggleView(view) {
+        if(view === 'customer') {
+            document.getElementById('admin-view').classList.add('hidden');
+            document.getElementById('customer-view').classList.remove('hidden');
+            // จำลองข้อมูลหน้าลูกค้าตอนกดสลับมาดู
+            document.getElementById('c-shopName').innerText = document.getElementById('shopName').value || "ชื่อร้านค้าของคุณ";
+            document.getElementById('c-itemName').innerText = "รายการ: " + (document.getElementById('itemName').value || "ค่าสินค้า");
+            document.getElementById('c-amount').innerText = (document.getElementById('amount').value || "0.00") + " ฿";
+            document.getElementById('c-qrImage').src = `https://promptpay.io/${document.getElementById('ppNumber').value || '0000000000'}/${document.getElementById('amount').value || '0'}.png`;
+        } else {
+            document.getElementById('admin-view').classList.remove('hidden');
+            document.getElementById('customer-view').classList.add('hidden');
+        }
+    }
+</script>
+
+</body>
+</html>
     <div class="form-group">
         <label>เบอร์พร้อมเพย์ หรือ เลขบัตรประชาชน</label>
         <input type="text" id="ppNumber" placeholder="เช่น 0812345678">
