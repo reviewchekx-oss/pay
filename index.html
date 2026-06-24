@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบเรียกเก็บเงินออนไลน์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Kanit', sans-serif; }
+        body { background-color: #f0f4f8; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: #ffffff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); max-width: 450px; width: 100%; text-align: center; }
+        h2 { color: #1e293b; margin-top: 0; font-weight: 600; }
+        p { color: #64748b; font-size: 14px; }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #475569; font-weight: 500; font-size: 14px; }
+        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 15px; outline: none; transition: 0.2s; }
+        input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        button { width: 100%; background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 500; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        button:hover { background: #2563eb; }
+        .qr-code { background: #f8fafc; padding: 15px; border-radius: 15px; margin: 20px 0; display: inline-block; border: 1px dashed #cbd5e1; }
+        .qr-code img { max-width: 200px; width: 100%; height: auto; }
+        .price { font-size: 32px; font-weight: 600; color: #10b981; margin: 10px 0; }
+        .result-box { background: #f1f5f9; padding: 15px; border-radius: 10px; margin-top: 20px; word-break: break-all; text-align: left; font-size: 13px; display: none; border: 1px solid #e2e8f0; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="seller-view" class="container">
+    <h2>📊 ระบบสร้างลิงก์เก็บเงิน</h2>
+    <p>กรอกข้อมูลเพื่อสร้างหน้าชำระเงินส่งให้ลูกค้าได้ทันที</p>
+    
+    <div class="form-group">
+        <label>ชื่อร้านค้าของคุณ</label>
+        <input type="text" id="shopName" placeholder="เช่น ร้านแฟชั่นดีไซน์">
+    </div>
+    <div class="form-group">
+        <label>เบอร์พร้อมเพย์ หรือ เลขบัตรประชาชน</label>
+        <input type="text" id="ppNumber" placeholder="เช่น 0812345678">
+    </div>
+    <div class="form-group">
+        <label>ชื่อสินค้า / บริการ</label>
+        <input type="text" id="itemName" placeholder="เช่น ค่าเสื้อผ้าเดรสสีขาว">
+    </div>
+    <div class="form-group">
+        <label>จำนวนเงิน (บาท)</label>
+        <input type="number" id="amount" placeholder="เช่น 350">
+    </div>
+    
+    <button onclick="generateLink()">🔗 สร้างลิงก์เก็บเงิน</button>
+    
+    <div id="resultBox" class="result-box">
+        <label style="font-weight:600; color:#1e293b;">คัดลอกลิงก์นี้ส่งให้ลูกค้า:</label>
+        <div id="generatedLink" style="margin: 8px 0; color:#2563eb; font-weight:500; user-select: all;"></div>
+        <button onclick="copyLink()" style="background:#10b981; padding:8px; font-size:14px;">📋 คัดลอกลิงก์</button>
+    </div>
+</div>
+
+<div id="customer-view" class="container hidden">
+    <div style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; display: inline-block; margin-bottom: 10px;">💸 หน้าชำระเงินที่ปลอดภัย</div>
+    <h2 id="view-shopName">ชื่อร้านค้า</h2>
+    <hr style="border:0; border-top:1px solid #e2e8f0; margin:15px 0;">
+    
+    <p style="margin-bottom:5px;">ยอดเงินที่ต้องชำระ</p>
+    <div class="price" id="view-amount">0.00 บาท</div>
+    <p style="margin-top:0;"><strong>รายการ:</strong> <span id="view-itemName">-</span></p>
+    
+    <div class="qr-code">
+        <img id="qrImage" src="" alt="PromptPay QR Code">
+        <div style="font-size:12px; color:#64748b; margin-top:8px; font-weight:500;">สแกนจ่ายด้วยแอปธนาคารทุกธนาคาร</div>
+    </div>
+    
+    <div style="background:#fff9db; color:#b29400; padding:10px; border-radius:10px; font-size:13px; text-align:left; margin-bottom:15px; border:1px solid #ffe3e3;">
+        💡 <strong>คำแนะนำ:</strong> เมื่อโอนเงินเสร็จแล้ว กรุณาแคปหน้าจอใบเสร็จ (Slip) ส่งกลับแจ้งผู้ขายทางแชทเพื่อยืนยันออเดอร์นะคะ
+    </div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const name = urlParams.get('name');
+    const pp = urlParams.get('pp');
+    const item = urlParams.get('item');
+    const amt = urlParams.get('amt');
+
+    if (name && pp && amt) {
+        document.getElementById('seller-view').classList.add('hidden');
+        document.getElementById('customer-view').classList.remove('hidden');
+        
+        document.getElementById('view-shopName').innerText = decodeURIComponent(name);
+        document.getElementById('view-itemName').innerText = decodeURIComponent(item || 'ค่าสินค้า/บริการ');
+        document.getElementById('view-amount').innerText = parseFloat(amt).toLocaleString('th-TH', { minimumFractionDigits: 2 }) + ' บาท';
+        
+        document.getElementById('qrImage').src = `https://promptpay.io/${pp}/${amt}.png`;
+    }
+
+    function generateLink() {
+        const shopName = encodeURIComponent(document.getElementById('shopName').value.trim());
+        const ppNumber = document.getElementById('ppNumber').value.trim();
+        const itemName = encodeURIComponent(document.getElementById('itemName').value.trim());
+        const amount = document.getElementById('amount').value.trim();
+        
+        if (!shopName || !ppNumber || !amount) {
+            alert('กรุณากรอก ชื่อร้าน, เบอร์พร้อมเพย์ และจำนวนเงินให้ครบถ้วนครับ');
+            return;
+        }
+        
+        const baseUrl = window.location.href.split('?')[0];
+        const finalUrl = `${baseUrl}?name=${shopName}&pp=${ppNumber}&item=${itemName}&amt=${amount}`;
+        
+        document.getElementById('generatedLink').innerText = finalUrl;
+        document.getElementById('resultBox').style.display = 'block';
+    }
+
+    function copyLink() {
+        const linkText = document.getElementById('generatedLink').innerText;
+        navigator.clipboard.writeText(linkText).then(() => {
+            alert('คัดลอกลิงก์เรียบร้อยแล้ว! สามารถนำไปส่งให้ลูกค้าได้เลยครับ');
+        }).catch(err => {
+            alert('คัดลอกสำเร็จแล้วในระบบ หรือคุณสามารถกดค้างเพื่อคัดลอกข้อความสีฟ้าได้เลยครับ');
+        });
+    }
+</script>
+</body>
+</html>
